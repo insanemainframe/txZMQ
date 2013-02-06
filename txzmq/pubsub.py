@@ -24,6 +24,26 @@ class ZmqPubConnection(ZmqConnection):
         self.send(tag + '\0' + message)
 
 
+class ZmqXPubConnection(ZmqPubConnection):
+    """
+    Publishing in broadcast manner.
+    """
+    socketType = constants.XPUB
+
+    def messageReceived(self, message):
+        """
+        Called on incoming message from ZeroMQ.
+
+        @param message: message data
+        """
+        if len(message) == 2:
+            # compatibility receiving of tag as first part
+            # of multi-part message
+            self.gotMessage(message[1], message[0])
+        else:
+            self.gotMessage(*reversed(message[0].split('\0', 1)))
+
+
 class ZmqSubConnection(ZmqConnection):
     """
     Subscribing to messages.
