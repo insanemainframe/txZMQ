@@ -43,21 +43,15 @@ class ZmqXPubConnection(ZmqPubConnection):
             message = message[0]
 
             if message[0] == '\1':
-                self.subscribeReceived(message[1:])
-            elif message[0] == '\0':
-                self.unsubscribeReceived(message[1:])
+                self.gotSubscription(message[1:])
             else:
-                self.gotMessage(*reversed(message[0].split('\0', 1)))
+                self.gotUnSubscription(message[1:])
 
-        elif len(message) == 2:
-            # compatibility receiving of tag as first part
-            # of multi-part message
-            self.gotMessage(message[1], message[0])
         else:
-            raise Exception('')
+            raise Exception('Some error')
 
 
-    def subscribeReceived(self, tag):
+    def gotSubscription(self, tag):
         """
         Called on incoming message recevied by subscriber
 
@@ -66,7 +60,7 @@ class ZmqXPubConnection(ZmqPubConnection):
         """
         raise NotImplementedError(self)
 
-    def unsubscribeReceived(self, tag):
+    def gotUnSubscription(self, tag):
         """
         Called on incoming message recevied by subscriber
 
